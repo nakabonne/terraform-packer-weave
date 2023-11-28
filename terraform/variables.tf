@@ -26,8 +26,3 @@ variable "cluster_size" {
   type        = number
   default     = 2
 }
-
-variable "user_data" {
-  description = "A User Data script to execute while the server is booting."
-  type        = string
-}

@@ -28,8 +28,8 @@ else
 	@exit 1
 endif
 
-packer-build:
+build-ami:
 	@cd packer && packer init . && packer fmt . && packer validate . && packer build weave.pkr.hcl
 
-terraform-apply:
+apply:
 	@cd terraform && terraform init && terraform fmt && terraform validate && terraform plan && terraform apply

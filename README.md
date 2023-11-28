@@ -22,5 +22,14 @@ direnv allow
 # Install packer
 make ./bin/packer
 
-make packer-build
+make build-ami
+```
+
+## Provision instance
+
+```bash
+# Install terraform
+make ./bin/terraform
+
+make apply
 ```

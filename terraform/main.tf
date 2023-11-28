@@ -15,6 +15,8 @@ provider "aws" {
 
 resource "aws_autoscaling_group" "autoscaling_group" {
   name_prefix = var.cluster_name
+  # TODO: Add zone
+  vpc_zone_identifier = []
 
   launch_configuration = aws_launch_configuration.launch_configuration.name
 
@@ -34,13 +36,30 @@ resource "aws_launch_configuration" "launch_configuration" {
   name_prefix   = "${var.cluster_name}-"
   image_id      = var.ami_id
   instance_type = var.instance_type
-  user_data     = var.user_data
+  user_data     = data.template_cloudinit_config.weave_bootstrap.rendered
 
 
   security_groups = concat(
     [aws_security_group.lc_security_group.id],
     [],
   )
+}
+
+data "template_cloudinit_config" "weave_bootstrap" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content_type = "text/x-shellscript"
+    content      = data.template_file.weave_bootstrap.rendered
+  }
+}
+
+data "template_file" "weave_bootstrap" {
+  template = file("${path.module}/scripts/bootstrap_weave.sh.tpl")
+  vars = {
+    foo = "bar"
+  }
 }
 
 resource "aws_security_group" "lc_security_group" {
@@ -54,37 +73,6 @@ resource "aws_security_group" "lc_security_group" {
   lifecycle {
     create_before_destroy = true
   }
-
-  tags = merge(
-    {
-      "Name" = var.cluster_name
-    },
-    [],
-  )
-}
-
-# TODO: Add security group rules
-
-resource "aws_security_group_rule" "allow_ssh_inbound" {
-  count       = length(var.allowed_ssh_cidr_blocks) >= 1 ? 1 : 0
-  type        = "ingress"
-  from_port   = var.ssh_port
-  to_port     = var.ssh_port
-  protocol    = "tcp"
-  cidr_blocks = var.allowed_ssh_cidr_blocks
-
-  security_group_id = aws_security_group.lc_security_group.id
-}
-
-resource "aws_security_group_rule" "allow_ssh_inbound_from_security_group_ids" {
-  count                    = var.allowed_ssh_security_group_count
-  type                     = "ingress"
-  from_port                = var.ssh_port
-  to_port                  = var.ssh_port
-  protocol                 = "tcp"
-  source_security_group_id = element(var.allowed_ssh_security_group_ids, count.index)
-
-  security_group_id = aws_security_group.lc_security_group.id
 }
 
 resource "aws_security_group_rule" "allow_all_outbound" {
@@ -92,6 +80,48 @@ resource "aws_security_group_rule" "allow_all_outbound" {
   from_port   = 0
   to_port     = 0
   protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = aws_security_group.lc_security_group.id
+}
+
+resource "aws_security_group_rule" "allow_ssh_inbound" {
+  type        = "ingress"
+  from_port   = 22
+  to_port     = 22
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = aws_security_group.lc_security_group.id
+}
+
+
+resource "aws_security_group_rule" "allow_tcp_inbound" {
+  type        = "ingress"
+  from_port   = 0
+  to_port     = 6783
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = aws_security_group.lc_security_group.id
+}
+
+resource "aws_security_group_rule" "allow_udp_inbound_6783" {
+  type        = "ingress"
+  from_port   = 0
+  to_port     = 6783
+  protocol    = "udp"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = aws_security_group.lc_security_group.id
+}
+
+
+resource "aws_security_group_rule" "allow_udp_inbound_6784" {
+  type        = "ingress"
+  from_port   = 0
+  to_port     = 6784
+  protocol    = "udp"
   cidr_blocks = ["0.0.0.0/0"]
 
   security_group_id = aws_security_group.lc_security_group.id
