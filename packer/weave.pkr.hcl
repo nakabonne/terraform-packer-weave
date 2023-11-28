@@ -21,11 +21,11 @@ data "amazon-ami" "ubuntu" {
 }
 
 source "amazon-ebs" "ubuntu22-ami" {
-  ami_name               = "ubuntu22-weave"
-  instance_type          = "t3.medium"
-  region                 = "ap-northeast-1"
-  source_ami             = data.amazon-ami.ubuntu.id
-  ssh_username           = "ubuntu"
+  ami_name      = "ubuntu22-weave"
+  instance_type = "t3.medium"
+  region        = "ap-northeast-1"
+  source_ami    = data.amazon-ami.ubuntu.id
+  ssh_username  = "ubuntu"
 }
 
 build {
@@ -44,7 +44,8 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo curl -L git.io/weave -o /usr/local/bin/weave && sudo chmod 755 /usr/local/bin/weave",
+      "sudo curl -L git.io/weave -o /usr/local/bin/weave",
+      "sudo chmod 755 /usr/local/bin/weave"
     ]
   }
 }

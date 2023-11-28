@@ -5,10 +5,5 @@ PATH_add bin
 export AWS_ACCESS_KEY_ID="<YOUR_ACCESS_KEY>"
 export AWS_SECRET_ACCESS_KEY="<YOUR_SECRET_ACCESS_KEY>"
 
-# For Packer
-export PACKER_GITHUB_API_TOKEN=""
-
 # For Terraform
-export TF_VAR_aws_region=""
-export TF_VAR_instance_type=""
 export TF_VAR_ami_id=""
