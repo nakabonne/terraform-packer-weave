@@ -92,8 +92,8 @@ resource "aws_security_group_rule" "allow_tcp_inbound" {
 
 resource "aws_security_group_rule" "allow_udp_inbound_6783" {
   type        = "ingress"
-  from_port   = 0
-  to_port     = 6783
+  from_port   = 6783
+  to_port     = 6784
   protocol    = "udp"
   cidr_blocks = ["0.0.0.0/0"]
 
@@ -101,11 +101,11 @@ resource "aws_security_group_rule" "allow_udp_inbound_6783" {
 }
 
 
-resource "aws_security_group_rule" "allow_udp_inbound_6784" {
+resource "aws_security_group_rule" "allow_icmp_inbound" {
   type        = "ingress"
-  from_port   = 0
-  to_port     = 6784
-  protocol    = "udp"
+  from_port   = 8 # Echo Request
+  to_port     = 0
+  protocol    = "icmp"
   cidr_blocks = ["0.0.0.0/0"]
 
   security_group_id = aws_security_group.lc_security_group.id
