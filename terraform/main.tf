@@ -14,9 +14,8 @@ provider "aws" {
 }
 
 resource "aws_autoscaling_group" "autoscaling_group" {
-  name_prefix = var.cluster_name
-  # TODO: Add zone
-  vpc_zone_identifier = []
+  name_prefix        = var.cluster_name
+  availability_zones = ["ap-northeast-1d"]
 
   launch_configuration = aws_launch_configuration.launch_configuration.name
 

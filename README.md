@@ -1,5 +1,7 @@
 # terraform-packer-weave
 
+Spawn infrastructure to play around with [Weave Net](https://www.weave.works/docs/net/latest/overview/).
+
 ## Prerequisite
 
 Install [direnv](https://direnv.net/).
