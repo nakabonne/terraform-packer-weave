@@ -18,7 +18,7 @@ variable "instance_type" {
 
 variable "ami_id" {
   type        = string
-  description = "AMI ID"
+  description = "ID of machine image that has installed weave and docker"
 }
 
 variable "cluster_size" {

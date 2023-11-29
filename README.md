@@ -27,7 +27,7 @@ make ./bin/packer
 make build-ami
 ```
 
-## Provision instance
+## Provision instances
 
 ```bash
 # Install terraform

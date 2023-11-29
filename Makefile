@@ -33,3 +33,6 @@ build-ami:
 
 apply:
 	@cd terraform && terraform init && terraform fmt && terraform validate && terraform plan && terraform apply
+
+destroy:
+	@cd terraform && terraform destroy
