@@ -44,3 +44,11 @@ make ./bin/terraform
 
 make apply
 ```
+
+## Create peer connections
+
+```
+sudo -i
+eval $(weave env)
+docker run --name c1 -it --rm  nakabonne/nettools:v1.0
+```
