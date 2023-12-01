@@ -29,7 +29,16 @@ make build-ami
 
 ## Provision instances
 
+Set the created AMI ID to `TF_VAR_ami_id` in your `.envrc`, and then:
+
 ```bash
+# Set the created AMI ID
+cat >> .envrc <<EOF
+export TF_VAR_ami_id="<CREATED_AMI_ID>"
+EOF
+
+direnv allow
+
 # Install terraform
 make ./bin/terraform
 

@@ -14,6 +14,11 @@ resource "aws_autoscaling_group" "autoscaling_group" {
     value               = "weave"
     propagate_at_launch = true
   }
+  tag {
+    key                 = "weave"
+    value               = "enabled"
+    propagate_at_launch = true
+  }
 }
 
 resource "aws_launch_configuration" "launch_configuration" {
