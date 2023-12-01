@@ -19,6 +19,10 @@ resource "aws_autoscaling_group" "autoscaling_group" {
     value               = "enabled"
     propagate_at_launch = true
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_launch_configuration" "launch_configuration" {
@@ -27,11 +31,11 @@ resource "aws_launch_configuration" "launch_configuration" {
   instance_type = var.instance_type
   user_data     = data.template_cloudinit_config.weave_bootstrap.rendered
 
+  security_groups = [aws_security_group.lc_security_group.id]
 
-  security_groups = concat(
-    [aws_security_group.lc_security_group.id],
-    [],
-  )
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 data "template_cloudinit_config" "weave_bootstrap" {
@@ -47,7 +51,7 @@ data "template_cloudinit_config" "weave_bootstrap" {
 data "template_file" "weave_bootstrap" {
   template = file("${path.module}/scripts/bootstrap_weave.sh.tpl")
   vars = {
-    foo = "bar"
+    aws_region = "${var.aws_region}"
   }
 }
 
