@@ -18,6 +18,7 @@ log "Setting up weave"
 mkdir -p /etc/sysconfig
 
 # Retrieve PEERS var from ASG
+export AWS_DEFAULT_REGION=${aws_region}
 private_ips=$(aws ec2 describe-instances --instance-ids --filters Name=tag:weave,Values=enabled \
     Name=instance-state-name,Values=running \
     | jq -r '.Reservations[].Instances[].PrivateIpAddress' | paste -s -d " ")

@@ -2,7 +2,7 @@ resource "aws_autoscaling_group" "autoscaling_group" {
   name_prefix        = var.cluster_name
   availability_zones = ["ap-northeast-1d"]
 
-  launch_configuration = aws_launch_configuration.launch_configuration.name
+  launch_configuration = aws_launch_configuration.weave_cluster_launchconfiguration.name
 
   # Run a fixed number of instances in the ASG
   min_size         = var.cluster_size
@@ -25,13 +25,15 @@ resource "aws_autoscaling_group" "autoscaling_group" {
   }
 }
 
-resource "aws_launch_configuration" "launch_configuration" {
+resource "aws_launch_configuration" "weave_cluster_launchconfiguration" {
   name_prefix   = "${var.cluster_name}-"
   image_id      = var.ami_id
   instance_type = var.instance_type
   user_data     = data.template_cloudinit_config.weave_bootstrap.rendered
 
   security_groups = [aws_security_group.lc_security_group.id]
+
+  iam_instance_profile = aws_iam_instance_profile.weave_instance_profile.name
 
   lifecycle {
     create_before_destroy = true
@@ -118,4 +120,58 @@ resource "aws_security_group_rule" "allow_icmp_inbound" {
   cidr_blocks = ["0.0.0.0/0"]
 
   security_group_id = aws_security_group.lc_security_group.id
+}
+
+data "aws_iam_policy_document" "assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type = "Service"
+      identifiers = [
+        "ec2.amazonaws.com",
+        "ssm.amazonaws.com",
+      ]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "weave_policy_document" {
+  statement {
+    actions = [
+      "autoscaling:DescribeAutoScalingGroups",
+      "ec2:DescribeInstances",
+    ]
+    resources = ["*"]
+    effect    = "Allow"
+  }
+}
+
+resource "aws_iam_policy" "weave_policy" {
+  name        = "weave-policy"
+  path        = "/"
+  description = "Weave EC2 Policy"
+  policy      = data.aws_iam_policy_document.weave_policy_document.json
+}
+
+resource "aws_iam_role" "weave_instance_role" {
+  name               = "weave-instance-role"
+  path               = "/"
+  description        = "Weave EC2 Role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+}
+
+resource "aws_iam_instance_profile" "weave_instance_profile" {
+  name = "weave-instance-profile"
+  role = aws_iam_role.weave_instance_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "policy_attachment" {
+  role       = aws_iam_role.weave_instance_role.name
+  policy_arn = aws_iam_policy.weave_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "weave_server_ssm" {
+  role       = aws_iam_role.weave_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
