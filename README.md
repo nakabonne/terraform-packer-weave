@@ -1,6 +1,6 @@
 # terraform-packer-weave
 
-Spawn infrastructure to play around with [Weave Net](https://www.weave.works/docs/net/latest/overview/).
+Spawn infrastructure to play around with [Weave Net](https://www.weave.works/docs/net/latest/overview/) on AWS EC2 instances.
 
 ## Prerequisite
 
@@ -46,6 +46,8 @@ make apply
 ```
 
 ## Create peer connections
+
+ssm into one of the instances
 
 ```
 sudo -i
