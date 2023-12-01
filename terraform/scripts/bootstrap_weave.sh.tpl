@@ -36,3 +36,6 @@ systemctl start weave.service
 log "Launching weave..."
 weave prime
 log "Weave has started"
+
+# Temporal fix for lingering iptables rules
+ufw disable
