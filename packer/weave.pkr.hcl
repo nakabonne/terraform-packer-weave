@@ -21,7 +21,7 @@ data "amazon-ami" "ubuntu" {
 }
 
 source "amazon-ebs" "ubuntu22-ami" {
-  ami_name      = "ubuntu22-weave"
+  ami_name      = "ubuntu22-weave-${formatdate("YYYY-MM-DD-hhmmss", timestamp())}"
   instance_type = "t3.medium"
   region        = "ap-northeast-1"
   source_ami    = data.amazon-ami.ubuntu.id
@@ -31,6 +31,11 @@ source "amazon-ebs" "ubuntu22-ami" {
 build {
   name    = "setup-weave"
   sources = ["source.amazon-ebs.ubuntu22-ami"]
+
+  provisioner "file" {
+    destination = "/tmp/weave.service"
+    source      = "${path.root}/resources/weave.service"
+  }
 
   # Docker
   provisioner "shell" {
@@ -42,10 +47,22 @@ build {
     ]
   }
 
+  # Weave
   provisioner "shell" {
     inline = [
       "sudo curl -L git.io/weave -o /usr/local/bin/weave",
-      "sudo chmod 755 /usr/local/bin/weave"
+      "sudo chmod 755 /usr/local/bin/weave",
+      "sudo mv /tmp/weave.service /etc/systemd/system/weave.service",
+      "sudo systemctl enable docker"
+    ]
+  }
+
+  # Extra packages
+  provisioner "shell" {
+    inline = [
+      "sudo apt-get update -y",
+      "sudo apt-get install awscli jq -y",
+      "sudo curl -L https://github.com/mattolenik/hclq/releases/download/0.5.3/hclq-linux-amd64 -o /usr/local/bin/hclq && sudo chmod 755 /usr/local/bin/hclq"
     ]
   }
 }
